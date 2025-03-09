@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>VFSLite - Lightweight virtual file system.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VFSLite is a light-weight virtual file system library.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+</head>
+<div class="wrap">
+    <div class="header">
+        <h1><img src="assets/vfsl_logo.png" width="168"></h1>
+    </div>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="https://github.com/vfslite/vfslite" target="_blank">Github</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <h1>Documentation</h1>
+        <hr/>
+        <h2>GO</h2>
+        <hr/>
+
+        <a  class="c-doc" href="#c-docs">Skip to C Documentation</a>
+
+        <h3>Importing</h3>
+        <hr/>
+        <pre><code class="language-go">import "github.com/vfslite/vfslite"</code></pre><br/>
+
+        <h3>Opening a Virtual Disk</h3>
+        <hr/>
+        <p>To create or open a virtual disk, use the Open function. The following example opens (or creates) a disk file with a specified block size and an initial number of blocks.</p>
+        <pre><code class="language-go">vfs, err := vfslite.Open("disk.vfs", 4096, 100)
+if err != nil {
+    // handle error appropriately
+}
+defer vfs.Close()</code></pre><br/>
+
+        <h3>Creating Files and Directories</h3>
+        <hr/>
+        <p>The root block is the entry point of your virtual filesystem.</p>
+
+        <h4>Creating directory</h4>
+        <hr/>
+        <pre><code class="language-go">dirBlock, err := vfs.CreateDirectoryBlock(rootBlock, "myDirectory", nil)
+if err != nil {
+    // handle error
+}
+</code></pre><br/>
+
+        <h4>Creating file</h4>
+        <hr/>
+        <pre><code class="language-go">fileBlock, err := vfs.CreateFileBlock(rootBlock, "myFile.txt", nil)
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h3>Reading and Writing Files</h3>
+        <hr/>
+        <p>VFSLite supports two primary methods for file operations.</p>
+
+        <h4>Writing Files</h4>
+        <hr/>
+        <p>For small files Use the WriteFile function which writes an entire file at once.</p>
+        <pre><code class="language-go">data := []byte("Hello, VFSLite!")
+
+fileBlock, err := vfs.WriteFile(rootBlock, "myFile.txt", data)
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+    <p>For large files Use a StreamWriter to write data in chunks.</p>
+
+    <pre><code class="language-go">writer, err := vfs.CreateStreamWriter(rootBlock, "largeFile.txt")
+if err != nil {
+    // handle error
+}
+
+_, err = writer.Write(largeData)
+if err != nil {
+    // handle error
+}
+
+err = writer.Close()
+if err != nil {
+    // handle error
+}
+    </code></pre><br/>
+
+    <h4>Reading Files</h4>
+    <hr/>
+
+    <p>For small files Use the ReadFile function which reads an entire file at once.</p>
+    <pre><code class="language-go">data, err := vfs.ReadFile(fileBlock)
+if err != nil {
+    // handle error
+}
+
+fmt.Println(string(data))
+    </code></pre><br/>
+
+    <p>For large files Use a StreamReader to read data in chunks.</p>
+
+    <pre><code class="language-go">reader, err := vfs.OpenStreamReader(fileBlock)
+if err != nil {
+    // handle error
+}
+
+defer reader.Close()
+
+buffer := make([]byte, 1024)
+n, err := reader.Read(buffer)
+if err != nil && err != io.EOF {
+    // handle error
+}
+
+fmt.Println(string(buffer[:n]))
+    </code></pre><br/>
+
+
+        <h3>Metadata Management</h3>
+        <hr/>
+        <p>VFSLite supports custom metadata for files and directories. Metadata is stored as key-value pairs.</p>
+
+        <h4>Setting Extra Metadata</h4>
+        <hr/>
+        <pre><code class="language-go">err = vfs.SetExtraMetadata(fileBlock, "author", "Jane Doe")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h4>Getting Extra Metadata</h4>
+        <hr/>
+        <pre><code class="language-go">value, exists, err := vfs.GetExtraMetadata(fileBlock, "author")
+if err != nil {
+    // handle error
+}
+
+if exists {
+    fmt.Println("Author:", value)
+}
+        </code></pre><br/>
+
+
+        <h3>Directory Navigation</h3>
+        <p>VFSLite supports hierarchical directory structure. You can navigate directories.</p>
+
+        <h4>Listing Children</h4>
+        <hr/>
+        <pre><code class="language-go">children, err := vfs.ListChildren(rootBlock)
+if err != nil {
+    // handle error
+}
+
+for _, child := range children {
+    // Process child block
+}
+</code></pre><br/>
+
+        <h4>Finding Directories and Files by Path</h4>
+        <hr/>
+        <pre><code class="language-go">// Retrieve a directory by path
+dirBlock, err := vfs.GetDirectory(rootBlock, "myDirectory")
+if err != nil {
+    // handle error
+}
+
+// Retrieve a file by path
+fileBlock, err = vfs.GetFileByPath(rootBlock, "myDirectory/myFile.txt")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+
+        <h3>Deleting Files and Directories</h3>
+        <hr/>
+        <p>VFSLite supports several methods for deleting files and directories.</p>
+
+        <h4>Deleting Files</h4>
+        <hr/>
+        <pre><code class="language-go">// Delete a file by block ID (removes file and all its data blocks)
+err = vfs.DeleteFile(fileBlock)
+if err != nil {
+    // handle error
+}
+
+// Delete a file by name from a parent directory
+err = vfs.DeleteFileFromParent(dirBlock, "myFile.txt")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h4>Deleting Directories</h4>
+        <hr/>
+        <pre><code class="language-go">// Delete a directory by block ID (recursively removes all contents)
+err = vfs.DeleteDirectory(dirBlock)
+if err != nil {
+    // handle error
+}
+
+// Delete a directory by name from a parent directory
+err = vfs.DeleteDirectoryFromParent(parentDir, "myDirectory")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h4>Deleting by Path</h4>
+        <hr/>
+        <pre><code class="language-go">// Delete a file or directory by path
+err = vfs.DeleteByPath(rootBlock, "myDirectory/myFile.txt")
+if err != nil {
+    // handle error
+}
+
+// Delete a directory and all its contents by path
+err = vfs.DeleteByPath(rootBlock, "myDirectory")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h3>Renaming Files and Directories</h3>
+        <hr/>
+        <p>VFSLite supports renaming files and directories.</p>
+
+        <h4>Renaming Files</h4>
+        <hr/>
+        <pre><code class="language-go">// Rename a file in a directory
+err = vfs.RenameFile(dirBlock, "oldFileName.txt", "newFileName.txt")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h4>Renaming Directories</h4>
+        <hr/>
+        <pre><code class="language-go">// Rename a directory in a parent directory
+err = vfs.RenameDirectory(parentDir, "oldDirName", "newDirName")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+
+        <h4>Renaming by Path</h4>
+        <hr/>
+        <pre><code class="language-go">// Rename a file or directory using a path
+err = vfs.RenameByPath(rootBlock, "myDirectory/oldFile.txt", "newFile.txt")
+if err != nil {
+    // handle error
+}
+
+// Rename a directory using a path
+err = vfs.RenameByPath(rootBlock, "myDirectory/oldSubDir", "newSubDir")
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+
+        <h3>Updating Files</h3>
+        <hr/>
+        <p>VFSLite supports updating files.</p>
+
+        <h4>Updating a file by block ID</h4>
+        <hr/>
+        <pre><code class="language-go">newData := []byte("Updated content for the file")
+err = vfs.UpdateFile(fileBlock, newData)
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h4>Updating a file by path</h4>
+        <hr/>
+        <pre><code class="language-go">newData := []byte("Updated content for the file")
+err = vfs.UpdateFileByPath(rootBlock, "myDirectory/myFile.txt", newData)
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h3>Closing</h3>
+        <hr/>
+        <p>When you are done with the virtual disk, close it.</p>
+        <pre><code class="language-go">err = vfs.Close()
+if err != nil {
+    // handle error
+}</code></pre><br/>
+
+        <h3>Getting File Size</h3>
+        <hr/>
+        <pre><code class="language-go">size, err := vfs.GetFileSize(fileBlock)
+if err != nil {
+    // handle error
+}
+
+fmt.Printf("File size: %d bytes\n", size)
+</code></pre><br/>
+
+
+        <h3>Updating Block Metadata</h3>
+        <hr/>
+        <p>VFSLite supports updating block metadata.</p>
+
+        <pre><code class="language-go">// Update metadata using a function that modifies the metadata object
+err = vfs.UpdateBlockMetadata(fileBlock, func(meta *vfslite.Metadata) {
+    meta.Extra["lastAccessed"] = time.Now().Format(time.RFC3339)
+    meta.Extra["version"] = "1.2"
+})
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+
+        <h3>Appending Data to Files</h3>
+        <hr/>
+        <p>VFSLite supports appending data to files.</p>
+
+        <pre><code class="language-go">additionalData := []byte("More content to add to the file")
+
+err = vfs.AppendData(fileBlock, additionalData)
+if err != nil {
+    // handle error
+}
+        </code></pre><br/>
+
+        <h2 id="c-docs">C</h2>
+        <hr/>
+        <p>Coming soon!</p>
+
+
+            <div class="footer">
+        <p>&copy; 2025 VFSLite, all rights reserved.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+    </script>
+</div>
+</html>
