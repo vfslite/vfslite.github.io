@@ -59,16 +59,14 @@ defer vfs.Close()</code></pre><br/>
         <pre><code class="language-go">dirBlock, err := vfs.CreateDirectoryBlock(rootBlock, "myDirectory", nil)
 if err != nil {
     // handle error
-}
-</code></pre><br/>
+}</code></pre><br/>
 
         <h4>Creating file</h4>
         <hr/>
         <pre><code class="language-go">fileBlock, err := vfs.CreateFileBlock(rootBlock, "myFile.txt", nil)
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h3>Reading and Writing Files</h3>
         <hr/>
@@ -82,8 +80,7 @@ if err != nil {
 fileBlock, err := vfs.WriteFile(rootBlock, "myFile.txt", data)
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
     <p>For large files Use a StreamWriter to write data in chunks.</p>
 
@@ -100,8 +97,7 @@ if err != nil {
 err = writer.Close()
 if err != nil {
     // handle error
-}
-    </code></pre><br/>
+}</code></pre><br/>
 
     <h4>Reading Files</h4>
     <hr/>
@@ -112,8 +108,7 @@ if err != nil {
     // handle error
 }
 
-fmt.Println(string(data))
-    </code></pre><br/>
+fmt.Println(string(data))</code></pre><br/>
 
     <p>For large files Use a StreamReader to read data in chunks.</p>
 
@@ -130,8 +125,7 @@ if err != nil && err != io.EOF {
     // handle error
 }
 
-fmt.Println(string(buffer[:n]))
-    </code></pre><br/>
+fmt.Println(string(buffer[:n]))</code></pre><br/>
 
 
         <h3>Metadata Management</h3>
@@ -143,8 +137,7 @@ fmt.Println(string(buffer[:n]))
         <pre><code class="language-go">err = vfs.SetExtraMetadata(fileBlock, "author", "Jane Doe")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h4>Getting Extra Metadata</h4>
         <hr/>
@@ -155,8 +148,7 @@ if err != nil {
 
 if exists {
     fmt.Println("Author:", value)
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
 
         <h3>Directory Navigation</h3>
@@ -186,8 +178,7 @@ if err != nil {
 fileBlock, err = vfs.GetFileByPath(rootBlock, "myDirectory/myFile.txt")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
 
         <h3>Deleting Files and Directories</h3>
@@ -206,8 +197,7 @@ if err != nil {
 err = vfs.DeleteFileFromParent(dirBlock, "myFile.txt")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h4>Deleting Directories</h4>
         <hr/>
@@ -221,8 +211,7 @@ if err != nil {
 err = vfs.DeleteDirectoryFromParent(parentDir, "myDirectory")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h4>Deleting by Path</h4>
         <hr/>
@@ -236,8 +225,7 @@ if err != nil {
 err = vfs.DeleteByPath(rootBlock, "myDirectory")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h3>Renaming Files and Directories</h3>
         <hr/>
@@ -249,8 +237,7 @@ if err != nil {
 err = vfs.RenameFile(dirBlock, "oldFileName.txt", "newFileName.txt")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h4>Renaming Directories</h4>
         <hr/>
@@ -258,8 +245,7 @@ if err != nil {
 err = vfs.RenameDirectory(parentDir, "oldDirName", "newDirName")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
 
         <h4>Renaming by Path</h4>
@@ -274,8 +260,7 @@ if err != nil {
 err = vfs.RenameByPath(rootBlock, "myDirectory/oldSubDir", "newSubDir")
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
 
         <h3>Updating Files</h3>
@@ -288,8 +273,7 @@ if err != nil {
 err = vfs.UpdateFile(fileBlock, newData)
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h4>Updating a file by path</h4>
         <hr/>
@@ -297,8 +281,7 @@ if err != nil {
 err = vfs.UpdateFileByPath(rootBlock, "myDirectory/myFile.txt", newData)
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h3>Closing</h3>
         <hr/>
@@ -315,8 +298,7 @@ if err != nil {
     // handle error
 }
 
-fmt.Printf("File size: %d bytes\n", size)
-</code></pre><br/>
+fmt.Printf("File size: %d bytes\n", size)</code></pre><br/>
 
 
         <h3>Updating Block Metadata</h3>
@@ -330,8 +312,7 @@ err = vfs.UpdateBlockMetadata(fileBlock, func(meta *vfslite.Metadata) {
 })
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
 
         <h3>Appending Data to Files</h3>
@@ -343,14 +324,157 @@ if err != nil {
 err = vfs.AppendData(fileBlock, additionalData)
 if err != nil {
     // handle error
-}
-        </code></pre><br/>
+}</code></pre><br/>
 
         <h2 id="c-docs">C</h2>
         <hr/>
-        <p>Coming soon!</p>
+        
+        <h3>Opening and closing VFSLite</h3>
+        <hr/>
+<pre><code class="language-c">/* Open a virtual disk (creates if it doesn't exist) */
+int vfsl_open(const char* diskName, unsigned int blockSize, unsigned long long initialBlocks);
+            
+/* Close a VFSLite instance */
+int vfsl_close(int handle);</code></pre><br/>
 
+        <h3>Basic Navigation</h3>
+        <hr/>
+<pre><code class="language-c">
+/* Get the root block of the filesystem */
+unsigned long long vfsl_get_root_block(int handle);
+    
+/* Get directory by path */
+unsigned long long vfsl_get_directory(int handle, unsigned long long startDir, const char* path);
+    
+/* Get file by name from a directory */
+unsigned long long vfsl_get_file(int handle, unsigned long long dirBlock, const char* fileName);
+    
+/* Get file by path */
+unsigned long long vfsl_get_file_by_path(int handle, unsigned long long startDir, const char* path);
+    
+/* List children of a directory */
+size_t vfsl_list_children(int handle, unsigned long long blockNum, void* buffer, size_t bufferSize);</code></pre><br/>
 
+        <h3>Creating Files and Directories</h3>
+        <hr/>
+<pre><code class="language-c">/* Create a directory */
+unsigned long long vfsl_create_directory_block(int handle, unsigned long long parentBlock, const char* dirName);
+            
+/* Create a file */
+unsigned long long vfsl_create_file_block(int handle, unsigned long long parentBlock, const char* fileName);</code></pre><br/>
+
+        <h3>File Operations</h3>
+        <hr/>
+        <pre><code class="language-c">/* Write a file in one operation */
+unsigned long long vfsl_write_file(int handle, unsigned long long parentDir, const char* fileName,
+const void* data, size_t dataSize);
+            
+/* Read a file in one operation */
+size_t vfsl_read_file(int handle, unsigned long long fileBlock, void* buffer, size_t bufferSize);
+            
+/* Get file size */
+unsigned long long vfsl_get_file_size(int handle, unsigned long long fileBlock);
+            
+/* Update file content */
+int vfsl_update_file(int handle, unsigned long long fileBlock, const void* data, size_t dataSize);
+            
+/* Update file by path */
+int vfsl_update_file_by_path(int handle, unsigned long long startDir, const char* path,
+const void* data, size_t dataSize);</code></pre><br/>
+
+        <h3>Streaming I/O</h3>
+        <hr/>
+        <pre><code class="language-c">
+/* Create a stream writer */
+int vfsl_create_stream_writer(int handle, unsigned long long parentBlock, const char* fileName);
+            
+/* Write to a stream */
+int vfsl_stream_writer_write(int writerHandle, const void* data, size_t dataSize);
+            
+/* Close a stream writer */
+int vfsl_stream_writer_close(int writerHandle);
+            
+/* Open a stream reader */
+int vfsl_open_stream_reader(int handle, unsigned long long fileBlock);
+            
+/* Read from a stream */
+int vfsl_stream_reader_read(int readerHandle, void* buffer, size_t bufferSize);
+            
+/* Close a stream reader */
+int vfsl_stream_reader_close(int readerHandle);</code></pre><br/>
+
+        <h3>Deletion Operations</h3>
+        <hr/>
+        <pre><code class="language-c">
+/* Delete a file by block ID */
+int vfsl_delete_file(int handle, unsigned long long fileBlock);
+            
+/* Delete a file from a parent directory */
+int vfsl_delete_file_from_parent(int handle, unsigned long long parentDir, const char* fileName);
+            
+/* Delete a directory by block ID */
+int vfsl_delete_directory(int handle, unsigned long long dirBlock);
+            
+/* Delete a directory from a parent */
+int vfsl_delete_directory_from_parent(int handle, unsigned long long parentDir, const char* dirName);
+            
+/* Delete by path */
+int vfsl_delete_by_path(int handle, unsigned long long startDir, const char* path);</code></pre><br/>
+
+        <h3>Renaming Operations</h3>
+        <hr/>
+        <pre><code class="language-c">
+/* Rename a file */
+int vfsl_rename_file(int handle, unsigned long long dirBlock, const char* oldName, const char* newName);
+            
+/* Rename a directory */
+int vfsl_rename_directory(int handle, unsigned long long parentDir, const char* oldName, const char* newName);
+            
+/* Rename by path */
+int vfsl_rename_by_path(int handle, unsigned long long startDir, const char* path, const char* newName);</code></pre><br/>
+
+        <h3>Metadata Operations</h3>
+        <hr/>
+        <pre><code class="language-c">/* Get block type */
+int vfsl_get_block_type(int handle, unsigned long long blockNum);
+            
+/* Get block data */
+size_t vfsl_get_block_data(int handle, unsigned long long blockNum, void* buffer, size_t bufferSize);
+            
+/* Get block metadata */
+size_t vfsl_get_block_metadata(int handle, unsigned long long blockNum, void* buffer, size_t bufferSize);
+            
+/* Set extra metadata */
+int vfsl_set_extra_metadata(int handle, unsigned long long blockNum, const char* key, const char* value);
+            
+/* Get extra metadata */
+int vfsl_get_extra_metadata(int handle, unsigned long long blockNum, const char* key,
+void* buffer, size_t bufferSize);
+            
+/* Get file size */
+unsigned long long vfsl_get_file_size(int handle, unsigned long long fileBlock);</code></pre><br/>
+
+        <h3>Hierarchical Operations</h3>
+        <hr/>
+        <pre><code class="language-c">/* Add a child block to a parent */
+int vfsl_add_child(int handle, unsigned long long parentBlock, unsigned long long childBlock);
+            
+/* Remove a child block from a parent */
+int vfsl_remove_child(int handle, unsigned long long parentBlock, unsigned long long childBlock);</code></pre><br/>
+
+        <h3>Additional Operations</h3>
+        <hr/>
+        <pre><code class="language-c">/* Append data to an existing file */
+int vfsl_append_data(int handle, unsigned long long fileBlock, const void* data, size_t dataSize);
+            
+/* Get block header information */
+size_t vfsl_get_block_header(int handle, unsigned long long blockNum, void* buffer, size_t bufferSize);
+            
+/* Update block metadata with JSON */
+int vfsl_update_block_metadata(int handle, unsigned long long blockNum, const char* metadataJSON);
+            
+/* Rename a block (change its name) */
+int vfsl_rename_block(int handle, unsigned long long blockNum, const char* newName);</code></pre><br/>
 
         <div class="footer">
             <p>&copy; 2025 VFSLite, all rights reserved.</p>
